@@ -1,19 +1,19 @@
 #ifndef GENSTACK_H
 #define GENSTACK_H
 #include <iostream>
+#include "DoublyLinkedList.h"
 
 using namespace std;
-
+template <typename T>
 class GenStack{
   public:
     GenStack(); // default
-    GenStack(int maxSize); // overloaded
     ~GenStack(); //destructor
 
     //core functions
-    void push(char data);
-    char pop();
-    char peek(); //aka top()
+    void push(T data);
+    T pop();
+    T peek(); //aka top()
 
     //aux functions
     bool isEmpty();
@@ -21,80 +21,61 @@ class GenStack{
     int getSize();
 
   private:
-    char *myStack;
-    int top();
-    int mSize();
+    DoublyLinkedList<T> *myArray;
+    ListNode<T> *top;
+    //int size();
 
 };
+
 template <typename T>
 GenStack<T>::GenStack(){
-  mSize = 64;//default size
-  top = -1;
-  myStack = new T[mSize];
+  top = NULL;
+  myArray = new DoublyLinkedList<T>();
 } // default
-template <typename T>
-GenStack<T>::GenStack(int maxSize){
-  mSize = maxSize;//parameter of max size
-  top = -1;
-  myStack = new T[mSize];
-} // overloaded
+
+//No overloaded constructor needed, no max size
 
 template <typename T>
 GenStack<T>::~GenStack(){
-  delete[] myStack;
-} //destructor
-//core functions
+  delete[] myArray;
 
+} //destructor
+
+
+//core functions
 template <typename T>
 void GenStack<T>::push(T data){
   //check if stack is is full
-  if(isFull()){
-    cout<< "stack is resizing"<<endl;
-    T *temp = new T[2*mSize];
-    for(int i = 0; i< mSize;++i){
-      temp[i] = myStack[i];
-    }
-    mSize *= 2;
-    delete[] myStack;
-    myStack = temp;
-  }
-  myStack[++top] = data;
+  myArray->insertFront(data);
+  top = myArray->getFront();
 }
 
 template <typename T>
-char GenStack<T>::pop(){
+T GenStack<T>::pop(){
   //make sure stack is not empty before proceeding
-  if(isEmpty()){
-    throw runtime_error("Stack is empty, nothing to pop");
-  }
-
-  return myStack[top--];
+  T pastFront = myArray->getFront()->data;
+  myArray->removeFront();
+  top = myArray->getFront();
+  return pastFront;
 }
 
 template <typename T>
-char GenStack<T>::peek(){
-  //make sure stack is not empty before proceeding
-  if(isEmpty()){
-    throw runtime_error("Stack is empty, nothing to peek");
-  }
-
-  return myStack[top];
+T GenStack<T>::peek(){
+  //doubly linked list makes sure stack is not empty before proceeding
+    return myArray->getFront()->data;
 } //aka top()
 
-template <typename T>
 //aux functions
+template <typename T>
 bool GenStack<T>::isEmpty(){
-  return (top == -1);
+  return (top == NULL);
 }
 
-template <typename T>
-bool GenStack<T>::isFull(){
-  return (top == mSize-1);
-}
+//No isFull function needed
 
 template <typename T>
 int GenStack<T>::getSize(){
-  return top + 1;
+  return myArray->getSize();
 }
 
 #endif
